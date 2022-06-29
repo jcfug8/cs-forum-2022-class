@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forum App</title>
+</head>
+<body>
+    <div id="app" style="text-align: center;">
+        <!-- Login with existing account -->
+        <h1>Login Form</h1>
+        <input placeholder="email" v-model="loginEmailInput"><br>
+        <input type="password" placeholder="password" v-model="loginPasswordInput"><br>
+        <button v-on:click="postSession">Attempt Login</button>
+
+        <!-- Creating a new account -->
+        <h1>Registration Form</h1>
+        <input placeholder="new email" v-model="newEmailInput"><br>
+        <input type="password" placeholder="new password" v-model="newPasswordInput"><br>
+        <input placeholder="full name" v-model="newFullnameInput"><br>
+        <button v-on:click="'???'">Create New User</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
