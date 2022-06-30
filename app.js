@@ -3,14 +3,23 @@ const URL = "https://forum2022.codeschool.cloud";
 var app = new Vue({
     el: "#app",
     data: {
+        page: "login",
+
         loginEmailInput: "",
         loginPasswordInput: "",
 
         newEmailInput: "",
         newPasswordInput: "",
-        newFullnameInput: ""
+        newFullnameInput: "",
+
+        threads: [],
     },
     methods: {
+        // change the page that the user sees
+        setPage: function (page) {
+            this.page = page;
+        },
+
         // GET /session - Ask the server if we are logged in
         getSession: async function () {
             let response = await fetch(`${URL}/session`, {
@@ -24,6 +33,10 @@ var app = new Vue({
                 console.log("logged in");
                 let data = await response.json();
                 console.log(data);
+
+                // send the user to the home page
+                this.loadHomePage();
+                return;
 
             } else if (response.status == 401) {
                 // Not logged in :(
@@ -52,25 +65,27 @@ var app = new Vue({
             });
 
             // 1. parse response body
+            let body;
             try {
-                let body = response.json();
-                console.log(body);
+                body = response.json();
+                // console.log(body);
             } catch (error) {
                 console.log("Response body was not json.")
             }
 
             // 2. check - was the login successful?
             if (response.status == 201) {
-                console.log("Successful login attempt");
+                // successful login
 
                 // clear inputs
                 this.loginEmailInput = "";
                 this.loginPasswordInput = "";
 
-                // take the user to a home page
+                // take the user to the home page
+                this.loadHomePage();
 
             } else if (response.status == 401) {
-                console.log("Unsuccessful login attempt");
+                // unsuccessful login
 
                 // let the user know it was unsuccessful
                 alert("Unsuccessful login");
@@ -89,7 +104,73 @@ var app = new Vue({
                 password: this.newPasswordInput
             }
 
-            let response = await 
+            let response = await fetch(URL + "/user", {
+                method: "POST",
+                body: JSON.stringify(newUser),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include"
+            });
+
+            // parse the response body
+            let body;
+            try {
+                body = response.json();
+            } catch (error) {
+                console.error("Error parsing body as JSON:", error);
+                body = "An Unknown Error has occured";
+            }
+
+            if (response.status == 201) {
+                // user successfully created
+                this.newEmailInput = "";
+                this.newFullnameInput = "";
+                this.newPasswordInput = "";
+
+                // send them back to the login page
+                this.setPage('login');
+            } else {
+                // error creating user
+                this.newPasswordInput = "";
+
+                // create notification
+
+            }
+        },
+        loadHomePage: async function () {
+            await this.getThread();
+            this.setPage('home');
+        },
+        getThread: async function () {
+            let response = await fetch(URL + "/thread", {
+                credentials: "include"
+            });
+            
+            // check response status
+            if (response.status == 200) {
+                // successfully got the data
+                let body = await response.json();
+                this.threads = body;
+            } else {
+                console.error("Error fetching threads:", response.status);
+            }
+        },
+        loadThreadPage: async function () {
+            this.setPage("thread");
+        },
+        getSingleThread: async function (id) {
+            let response = await fetch(URL + "/thread/" + id, {
+                credentials: "include"
+            });
+
+            // check response status
+            if (response.status == 200) {
+                this.currentThread = await response.json();
+                this.loadThreadPage();
+            } else {
+                console.error("Error fetching individual request with id", id, "- status:", response.status);
+            }
         }
     },
     created: function () {
