@@ -1,45 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="style/login.css">
+    <link rel="stylesheet" href="style/register.css">
+    <link rel="stylesheet" href="style/home.css">
     <title>Forum App</title>
 </head>
 <body>
-    <div id="app" style="text-align: center;">
+    <div id="app">
+        <div id="top"></div>
         <!-- Login with existing account -->
-        <div v-if="page == 'login'">
-            <h1>Login Form</h1>
-            <input placeholder="email" v-model="loginEmailInput"><br>
-            <input type="password" placeholder="password" v-model="loginPasswordInput"><br>
-            <button v-on:click="postSession">Login</button>
-            <button v-on:click="setPage('register')">Register</button>
-        </div>
-
-        <!-- Creating a new account -->
-        <div v-else-if="page == 'register'">
-            <h1>Registration Form</h1>
-            <input placeholder="new email" v-model="newEmailInput"><br>
-            <input type="password" placeholder="new password" v-model="newPasswordInput"><br>
-            <input placeholder="full name" v-model="newFullnameInput"><br>
-            <button v-on:click="postUser">Register</button>
-        </div>
-
-        <!-- Home page - displays all threads (high level, no comments) -->
-        <div v-else-if="page == 'home'">
-            <h1>Forum App - Enjoy your stay</h1>
-            <div v-for="thread in threads">
-                <h3>{{ thread.name }}</h3>
-                <p>{{ thread.description }} - {{ thread.user.fullname }}</p>
+        <div class="auth-page" id="login-page" v-if="page == 'login'">
+            <h1 class="auth-title">Forum App</h1>
+            <div id="login-area">
+                <h1>Login Form</h1>
+                <input placeholder="email" v-model="loginEmailInput"><br>
+                <input type="password" placeholder="password" v-model="loginPasswordInput"><br>
+                <button v-on:click="postSession">Login</button><br>
+                <button v-on:click="setPage('register')">Register New User</button>
             </div>
         </div>
 
+        <!-- Creating a new account -->
+        <div class="auth-page" id="register-page" v-else-if="page == 'register'">
+            <h1 class="auth-title">Forum App</h1>
+            <div id="register-area">
+                <h1>Registration Form</h1>
+                <input placeholder="new email" v-model="newEmailInput"><br>
+                <input type="password" placeholder="new password" v-model="newPasswordInput"><br>
+                <input placeholder="full name" v-model="newFullnameInput"><br>
+                <button v-on:click="postUser">Register</button><br>
+                <button v-on:click="setPage('login')">Back to login</button>
+            </div>
+        </div>
+
+        <!-- Home page - displays all threads (high level, no comments) -->
+        <div class="forum-page" v-else-if="page == 'home'">
+            <button v-on:click="logoutUser" class="logout-button">Logout</button>
+            <h1>Forum App - Enjoy your stay</h1>
+            <div class="forum-item" v-on:click="getSingleThread(thread._id)" v-for="thread in threads">
+                <button v-on:click.stop="deleteThread(thread._id)">Delete Thread</button>
+                <h3>{{ thread.name }}</h3>
+                <p>{{ thread.description }} - {{ thread.user.fullname }}</p>
+            </div>
+            <br>
+            <button class="new-thread-button" v-on:click="loadNewThreadPage">Create New Thread</button>
+            <a href="#top"><button class="home-button" v-on:click="loadHomePage">Home</button></a>
+        </div>
+
         <!-- Thread page - displays a single thread, along with comments -->
-        <div v-else-if="page == 'thread'">
-            <h1>{{ currentThread.name }}</h1>
-            <div v-for="post in currentThread.posts">
+        <div class="forum-page" v-else-if="page == 'thread'">
+            <h1 class="title">{{ currentThread.name }}</h1>
+            <div class="forum-item" v-for="post in currentThread.posts">
                 <p>
                     {{ post.body }} - 
                     <i>{{ post.user.fullname }}</i>
                 </p>
+            </div>
+
+            <div class="forum-item" id="forum-add-post">
+                <button id="new-post-button" v-on:click="postPost(currentThread._id)">Post Comment</button>
+                <input v-model="newPostBody">
+            </div>
+            <br>
+            <a href="#top"><button class="home-button" v-on:click="loadHomePage">Home</button></a>
+        </div>
+
+        <!-- New Thread Page - form to create a new thread -->
+        <div class="forum-page" v-else-if="page == 'newThread'">
+            <div class="title">
+                <button class="new-thread-button" v-on:click="postThread()">Create Thread</button>
+                <input placeholder="Thread Name" v-model="newThreadName"> 
+                <input placeholder="Thread Description" v-model="newThreadDescription"> 
+                <input placeholder="Category" v-model="newThreadCategory"> 
             </div>
         </div>
 

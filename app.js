@@ -12,6 +12,12 @@ var app = new Vue({
         newPasswordInput: "",
         newFullnameInput: "",
 
+        newPostBody: "",
+
+        newThreadName: "",
+        newThreadDescription: "",
+        newThreadCategory: "",
+
         threads: [],
     },
     methods: {
@@ -142,6 +148,7 @@ var app = new Vue({
             await this.getThread();
             this.setPage('home');
         },
+        // GET /thread - get a list of all threads
         getThread: async function () {
             let response = await fetch(URL + "/thread", {
                 credentials: "include"
@@ -157,8 +164,10 @@ var app = new Vue({
             }
         },
         loadThreadPage: async function () {
+            this.newPostBody = "";
             this.setPage("thread");
         },
+        // GET /thread/_id - get a single thread & its posts
         getSingleThread: async function (id) {
             let response = await fetch(URL + "/thread/" + id, {
                 credentials: "include"
@@ -170,6 +179,86 @@ var app = new Vue({
                 this.loadThreadPage();
             } else {
                 console.error("Error fetching individual request with id", id, "- status:", response.status);
+            }
+        },
+        // DELETE /thread/_id - deletes a thread if the user owns it
+        deleteThread: async function (id) {
+            let response = await fetch(URL + '/thread/' + id, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            switch (response.status) {
+            case 200:
+                this.getThread();
+                break;
+            case 403:
+                alert("Cannot delete: User does not own the thread")
+            default:
+                console.log("Error when deleting post:", response.status);
+                break;
+            }
+        },
+        logoutUser: function () {
+            this.setPage('login');
+        },
+        // POST /post - posts a comment to a specific thread
+        postPost: async function (id) {
+            let postBody = {
+                body: this.newPostBody,
+                thread_id: id
+            }
+
+            let response = await fetch(URL + "/post", {
+                method: "POST",
+                body: JSON.stringify(postBody),
+                headers: {
+                    "Content-Type" : "application/json"
+                },
+                credentials: "include"
+            });
+
+            if (response.status == 201) {
+                // created successfully
+                this.getSingleThread(id);
+            } else {
+                console.log("Error posting new post:", response.status);
+            }
+        },
+        loadNewThreadPage: function () {
+            // clear inputs
+            this.newThreadCategory = "";
+            this.newThreadName = "";
+            this.newThreadDescription = "";
+
+            // show new form for threads
+            this.setPage("newThread");
+        },
+        // POST /thread - sends a new thread to the server
+        postThread: async function () {
+            // create body to send to server
+            let newThread = {
+                name: this.newThreadName,
+                description: this.newThreadDescription,
+                category: this.newThreadCategory
+            };
+
+            let response = await fetch(URL + "/thread", {
+                method: "POST",
+                body: JSON.stringify(newThread),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include"
+            });
+
+            // read the status of the response
+            if (response.status == 201) {
+                // successful creation
+
+                this.loadHomePage();
+            } else {
+                console.log("Error posting thread:", response.status);
             }
         }
     },

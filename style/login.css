@@ -1,0 +1,42 @@
+.auth-page {
+    height: inherit;
+
+    display: grid;
+    grid-template-columns: 1fr min-content 1fr;
+    grid-template-rows: minmax(20%, 1fr) min-content 1.5fr;
+    text-align: center;
+}
+
+.auth-title {
+    grid-area: 1 / 2 / 2 / 3;
+    padding-top: 3rem;
+    font-size: 4rem;
+    font-weight: bold;
+}
+
+body #app #login-page #login-area {
+    grid-area: 2 / 2 / 3 / 3;
+
+    display: block;
+    border-radius: 2px;
+    box-shadow: var(--default-shadow);
+    text-align: center;
+    padding: 3rem 2rem;
+    min-width: 35rem;
+    background: var(--palette-3);
+}
+
+body #app #login-page #login-area h1 {
+    margin-bottom: 2rem;
+    color: var(--palette-1);
+}
+
+body #app #login-page #login-area input {
+    width: 15rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+body #app #login-page #login-area button {
+    margin-top: .5rem;
+}

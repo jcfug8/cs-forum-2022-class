@@ -1,0 +1,25 @@
+body #app #register-page #register-area {
+    grid-area: 2 / 2 / 3 / 3;
+
+    display: block;
+    border-radius: 2px;
+    box-shadow: var(--default-shadow);
+    text-align: center;
+    padding: 3rem 2rem;
+    min-width: 35rem;
+    background: var(--palette-3);
+}
+
+body #app #register-page #register-area h1 {
+    margin: 2rem auto;
+}
+
+body #app #register-page #register-area input {
+    width: 15rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+body #app #register-page #register-area button {
+    margin-top: .5rem;
+}

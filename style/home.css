@@ -1,0 +1,67 @@
+.forum-page {
+    padding: 1.5rem 0rem 1.5rem 2rem;
+}
+
+.forum-page h1 {
+    background-color: var(--palette-3);
+    padding: 1.5rem 2rem;
+    border-radius: 15px 0 0 15px;
+    margin-bottom: 1.5rem;
+}
+
+.forum-page .logout-button {
+    margin: 1.5rem 2rem;
+    float: right;
+    width: auto;
+    background-color: var(--palette-1);
+    transition: .4s;
+} .logout-button:hover {
+    background-color: var(--palette-2);
+}
+
+.forum-page .forum-item {
+    background-color: var(--palette-3);
+    padding: 1rem 2rem;
+    border-bottom: 2px solid rgba(0, 0, 0, .7);
+    transition: .4s;
+} .forum-page .forum-item:hover {
+    background-color: var(--palette-4);
+    cursor: pointer;
+    padding: 1rem 3rem;
+} #post-item:hover {
+    cursor: default;
+} .forum-item:last-of-type {
+    border-bottom: none;
+}
+
+.forum-page .forum-item button {
+    float: right;
+    width: auto;
+    color: white;
+    background-color: var(--button-red);
+}
+
+.home-button {
+    background-color: var(--palette-6);
+    width: auto;
+    color: var(--palette-1);
+    transition: .6s;
+}
+
+.new-thread-button {
+    float: right;
+    margin-right: 2rem;
+    background-color: var(--palette-6);
+    width: auto;
+    color: var(--palette-1);
+    transition: .6s;
+}
+
+#forum-add-post #new-post-button {
+    float: right;
+    background-color: var(--palette-2);
+}
+
+#forum-add-post input {
+    background-color: var(--palette-4);
+}
