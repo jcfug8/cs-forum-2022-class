@@ -1,0 +1,27 @@
+{
+  "name": "codeschool2022-forum-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jcfug8/cs-forum-2022-class.git"
+  },
+  "author": "Jace Fugate",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jcfug8/cs-forum-2022-class/issues"
+  },
+  "homepage": "https://github.com/jcfug8/cs-forum-2022-class#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "mongoose": "^6.4.3",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0"
+  }
+}
