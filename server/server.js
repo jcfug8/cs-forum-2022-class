@@ -133,13 +133,13 @@ app.post("/thread", async (req, res) => {
   }
 });
 
-app.delete("/thread/:id", (req, res) => {
+app.delete("/thread/:id", async (req, res) => {
   // check if authed
   if (!req.user) {
     res.status(401).json({ mesage: "unauthenticated" });
     return;
   }
-  console.log(`request to delete a single thread with id ${req.params}`);
+  console.log(`request to delete a single thread with id ${req.params.id}`);
 
   let thread;
 
