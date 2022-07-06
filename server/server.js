@@ -29,9 +29,44 @@ app.post("/users", async (req, res) => {
   }
 });
 
-app.get("/thread/:id", (req, res) => {});
+app.get("/thread/:id", (req, res) => {
+  // implement me :)
+  // no authentication needed a.k.a. authorization is public/open
+  // get the thread
+  // get the user
+  // get the posts (we don't have posts yet so just put a comment)
+  // return the thread
+});
 
-app.get("/thread", (req, res) => {});
+app.get("/threads", async (req, res) => {
+  // no authentication needed a.k.a. authorization is public/open
+
+  // get the threads (extra points for omitting the posts)
+  try {
+    threads = await Thread.find({}, "-posts");
+  } catch (err) {
+    res.status(500).json({
+      message: "list request failed to get threads",
+      error: err,
+    });
+  }
+
+  // get all the users for all the threads
+  for (let k in threads) {
+    try {
+      threads[k] = threads[k].toObject();
+      let user = await User.findById(threads[k].user_id, "-password"); // how would you omit the pasword?
+      threads[k].user = user;
+    } catch (err) {
+      console.log(
+        `unable to get user ${threads[k].user_id} when getting thread ${threads[k]._id}: ${err}`
+      );
+    }
+  }
+
+  // return the threads (extra points for getting the users to show up in the response)
+  res.status(200).json(threads);
+});
 
 app.post("/thread", async (req, res) => {
   // auth
