@@ -62,7 +62,17 @@ app.get("/thread/:id", async (req, res) => {
     );
   }
 
-  // get the users for all the posts (we don't have posts yet so just put a comment)
+  // get the posts users
+  for (let k in thread.posts) {
+    try {
+      let user = await User.findById(thread.posts[k].user_id, "-password");
+      thread.posts[k].user = user;
+    } catch (err) {
+      console.log(
+        `unable to get user ${thread.posts[k].user_id} for post ${thread.posts[k]._id} when getting thread ${thread._id}: ${err}`
+      );
+    }
+  }
 
   // return the thread
   res.status(200).json(thread);
@@ -123,7 +133,56 @@ app.post("/thread", async (req, res) => {
   }
 });
 
-app.delete("/thread/:id", (req, res) => {});
+app.delete("/thread/:id", (req, res) => {
+  // check if authed
+  if (!req.user) {
+    res.status(401).json({ mesage: "unauthenticated" });
+    return;
+  }
+  console.log(`request to delete a single thread with id ${req.params}`);
+
+  let thread;
+
+  // get the thread to check if the current user is allow to delete it
+  try {
+    thread = await Thread.findById(req.params.id);
+  } catch (err) {
+    res.status(500).json({
+      message: `failed to delete thread`,
+      error: err,
+    });
+    return;
+  }
+
+  // check if we found it
+  if (thread === null) {
+    res.status(404).json({
+      message: `thread not found`,
+      thread_id: req.params.thread_id,
+    });
+    return;
+  }
+
+  // check if the current user made the post
+  if (thread.user_id != req.user.id) {
+    res.status(403).json({ mesage: "unauthorized" });
+    return;
+  }
+
+  // delete the post
+  try {
+    await Thread.findByIdAndDelete(req.params.id);
+  } catch (err) {
+    res.status(500).json({
+      message: `failed to delete post`,
+      error: err,
+    });
+    return;
+  }
+
+  // return
+  res.status(200).json(thread);
+});
 
 app.post("/post", async (req, res) => {
   // check auth
@@ -173,6 +232,12 @@ app.post("/post", async (req, res) => {
   res.status(201).json(thread.posts[thread.posts.length - 1]);
 });
 
-app.delete("/thread/:thread_id/post/:post_id", (req, res) => {});
+app.delete("/thread/:thread_id/post/:post_id", (req, res) => {
+  // check auth
+  // pull thread
+  // check that the post on the thread is "owned" by the requesting user (authorization)
+  // delete the post
+  // return the deleted post
+});
 
 module.exports = app;
