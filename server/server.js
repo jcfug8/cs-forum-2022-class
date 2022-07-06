@@ -240,6 +240,7 @@ app.delete("/thread/:thread_id/post/:post_id", (req, res) => {
     "posts._id": req.params.post_id,
   });
   // check that the post on the thread is "owned" by the requesting user (authorization)
+  // for loop over thread.posts to find the post you're looking for so you can check the user_id
   // delete the post
   await Thread.findByIdAndUpdate(req.params.thread_id, {
     $pull: {
