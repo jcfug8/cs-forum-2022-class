@@ -235,8 +235,19 @@ app.post("/post", async (req, res) => {
 app.delete("/thread/:thread_id/post/:post_id", (req, res) => {
   // check auth
   // pull thread
+  thread = await Thread.findOne({
+    _id: req.params.thread_id,
+    "posts._id": req.params.post_id,
+  });
   // check that the post on the thread is "owned" by the requesting user (authorization)
   // delete the post
+  await Thread.findByIdAndUpdate(req.params.thread_id, {
+    $pull: {
+      posts: {
+        _id: req.params.post_id,
+      },
+    },
+  });
   // return the deleted post
 });
 
