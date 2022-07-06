@@ -29,19 +29,48 @@ app.post("/users", async (req, res) => {
   }
 });
 
-app.get("/thread/:id", (req, res) => {
+app.get("/thread/:id", async (req, res) => {
   // implement me :)
   // no authentication needed a.k.a. authorization is public/open
+  let thread;
+
   // get the thread
+  try {
+    thread = await Thread.findById(req.params.id);
+    if (!thread) {
+      res.status(404).json({
+        message: "thread not found",
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: `get request failed to get thread`,
+      error: err,
+    });
+  }
+
   // get the user
-  // get the posts (we don't have posts yet so just put a comment)
+  try {
+    thread = thread.toObject();
+    let user = await User.findById(thread.user_id, "-password"); // how would you omit the pasword?
+    thread.user = user;
+  } catch (err) {
+    console.log(
+      `unable to get user ${thread.user_id} when getting thread ${thread._id}: ${err}`
+    );
+  }
+
+  // get the users for all the posts (we don't have posts yet so just put a comment)
+
   // return the thread
+  res.status(200).json(thread);
 });
 
 app.get("/threads", async (req, res) => {
   // no authentication needed a.k.a. authorization is public/open
-
-  // get the threads (extra points for omitting the posts)
+  let threads;
+  // get the threads and omit the posts)
   try {
     threads = await Thread.find({}, "-posts");
   } catch (err) {
@@ -64,7 +93,7 @@ app.get("/threads", async (req, res) => {
     }
   }
 
-  // return the threads (extra points for getting the users to show up in the response)
+  // return the threads
   res.status(200).json(threads);
 });
 
