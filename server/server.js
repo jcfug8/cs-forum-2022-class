@@ -48,6 +48,7 @@ app.get("/thread/:id", async (req, res) => {
       message: `get request failed to get thread`,
       error: err,
     });
+    return;
   }
 
   // get the user
@@ -78,6 +79,7 @@ app.get("/threads", async (req, res) => {
       message: "list request failed to get threads",
       error: err,
     });
+    return;
   }
 
   // get all the users for all the threads
@@ -117,12 +119,59 @@ app.post("/thread", async (req, res) => {
       message: "could not create thread",
       error: err,
     });
+    return;
   }
 });
 
 app.delete("/thread/:id", (req, res) => {});
 
-app.post("/post", (req, res) => {});
+app.post("/post", async (req, res) => {
+  // check auth
+  if (!req.user) {
+    res.status(401).json({ message: "unauthed" });
+    return;
+  }
+
+  let thread;
+
+  // find the thread and update it with the new post
+  try {
+    thread = await Thread.findByIdAndUpdate(
+      req.body.thread_id, // what is the id
+      {
+        // what to update
+        $push: {
+          // push update operator
+          posts: {
+            // what field are we pushing to and what are we pushing?
+            user_id: req.user.id,
+            body: req.body.body,
+            thread_id: req.body.thread_id,
+          },
+        },
+      },
+      {
+        new: true, // options
+      }
+    );
+    if (!thread) {
+      res.status(404).json({
+        message: `thread not found`,
+        id: req.body.thread_id,
+      });
+      return;
+    }
+  } catch (err) {
+    res.status(500).json({
+      message: `failed to insert post`,
+      error: err,
+    });
+    return;
+  }
+
+  // return the post
+  res.status(201).json(thread.posts[thread.posts.length - 1]);
+});
 
 app.delete("/thread/:thread_id/post/:post_id", (req, res) => {});
 
