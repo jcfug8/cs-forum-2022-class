@@ -232,24 +232,76 @@ app.post("/post", async (req, res) => {
   res.status(201).json(thread.posts[thread.posts.length - 1]);
 });
 
-app.delete("/thread/:thread_id/post/:post_id", (req, res) => {
+app.delete("/thread/:thread_id/post/:post_id", async (req, res) => {
   // check auth
+  if (!req.user) {
+    res.status(401).json({ message: "unauthed" });
+    return;
+  }
+
+  let thread;
+  let post;
+
   // pull thread
-  thread = await Thread.findOne({
-    _id: req.params.thread_id,
-    "posts._id": req.params.post_id,
-  });
+  try {
+    thread = await Thread.findOne({
+      _id: req.params.thread_id,
+      "posts._id": req.params.post_id,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: `error finding thread when deleting post`,
+      error: err,
+    });
+    return;
+  }
+
+  if (!thread) {
+    res.status(404).json({
+      message: `thread not found when deleting post`,
+      thread_id: req.params.thread_id,
+      post_id: req.params.post_id,
+    });
+    return;
+  }
   // check that the post on the thread is "owned" by the requesting user (authorization)
   // for loop over thread.posts to find the post you're looking for so you can check the user_id
+  let isSameUser = false;
+  for (let k in thread.posts) {
+    // find post
+    if (thread.posts[k]._id == req.params.post_id) {
+      post = thread.posts[k];
+      if (thread.posts[k].user_id == req.user.id) {
+        isSameUser = true;
+      }
+    }
+    // check user id
+  }
+
+  if (!isSameUser) {
+    res.status(403).json({ mesage: "unauthorized" });
+    return;
+  }
+
   // delete the post
-  await Thread.findByIdAndUpdate(req.params.thread_id, {
-    $pull: {
-      posts: {
-        _id: req.params.post_id,
+  try {
+    await Thread.findByIdAndUpdate(req.params.thread_id, {
+      $pull: {
+        posts: {
+          _id: req.params.post_id,
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: `error deleting post`,
+      error: err,
+    });
+    return;
+  }
+
   // return the deleted post
+  res.status(200).json(post);
 });
 
 module.exports = app;
